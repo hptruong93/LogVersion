@@ -57,7 +57,7 @@ public class MainScreen extends javax.swing.JFrame {
 		insertEntry = new InsertEntry(this);
 		timer = new ScheduledThreadPoolExecutor(4);
 		timer.scheduleAtFixedRate(new UpdateTime(), 0, 1, TimeUnit.SECONDS);
-		//timer.scheduleAtFixedRate(new AutoSave(), 0, 15, TimeUnit.SECONDS);
+		timer.scheduleAtFixedRate(new AutoSave(), 0, 15, TimeUnit.SECONDS);
 	}
 
 	/**
