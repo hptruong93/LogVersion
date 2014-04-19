@@ -109,6 +109,6 @@ public class Entry {
 
 	@Override
 	public String toString() {
-		return MainScreen.DEFAULT_DATE.format(new Date(time.getTimeInMillis())) + " - " + title;
+		return MainScreen.DEFAULT_DISPLAY_DATE.format(new Date(time.getTimeInMillis())) + " - " + title;
 	}
 }

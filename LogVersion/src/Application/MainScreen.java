@@ -49,7 +49,7 @@ public class MainScreen extends javax.swing.JFrame {
 		});
 
 		entries = new ArrayList<Entry>();
-		listModel = new DefaultListModel();
+		listModel = new DefaultListModel<String>();
 		listEntries.setModel(listModel);
 		loadPreviousLog();
 
@@ -57,7 +57,7 @@ public class MainScreen extends javax.swing.JFrame {
 		insertEntry = new InsertEntry(this);
 		timer = new ScheduledThreadPoolExecutor(4);
 		timer.scheduleAtFixedRate(new UpdateTime(), 0, 1, TimeUnit.SECONDS);
-		timer.scheduleAtFixedRate(new AutoSave(), 0, 2, TimeUnit.MINUTES);
+		//timer.scheduleAtFixedRate(new AutoSave(), 0, 15, TimeUnit.SECONDS);
 	}
 
 	/**
@@ -485,7 +485,7 @@ public class MainScreen extends javax.swing.JFrame {
 	private JLabel lDate;
 	private JLabel lNumberOfItems;
 	private JLabel lTime;
-	private JList listEntries;
+	private JList<String> listEntries;
 	private JMenuItem miNew, miFind;
 	private JMenuItem miExit;
 	private JMenuItem miLoad;
@@ -505,6 +505,8 @@ public class MainScreen extends javax.swing.JFrame {
 	private static final String FILE_SAVE_NAME = "Current.log";
 	private static final SimpleDateFormat DEFAULT_TIME = new SimpleDateFormat("HH : mm : ss");
 	protected static final SimpleDateFormat DEFAULT_DATE = new SimpleDateFormat("dd - MMMM - yyyy",
+			Locale.ENGLISH);
+	protected static final SimpleDateFormat DEFAULT_DISPLAY_DATE = new SimpleDateFormat("dd/MM/yyyy",
 			Locale.ENGLISH);
 
 	protected void addEntry(Entry entry) {
