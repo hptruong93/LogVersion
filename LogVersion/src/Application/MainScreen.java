@@ -467,8 +467,6 @@ public class MainScreen extends javax.swing.JFrame {
 			@Override
 			public void run() {
 				new MainScreen().setVisible(true);
-				JButton x = new JButton("XXXXX");
-				System.out.println(x.getSize());
 			}
 		});
 	}
