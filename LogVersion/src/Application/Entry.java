@@ -48,7 +48,8 @@ public class Entry {
 			}
 		} else {
 			for (int i = 0; i < array.size(); i++) {
-				if (array.get(i).content.indexOf(key) != -1) {
+				Entry current = array.get(i);
+				if (current.title.indexOf(key) != -1 || current.content.indexOf(key) != -1) {
 					output.add(i);
 				}
 			}

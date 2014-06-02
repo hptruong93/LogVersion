@@ -1,5 +1,6 @@
 package Application;
 
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -87,6 +88,7 @@ public class MainScreen extends javax.swing.JFrame {
 		miSaveToFile = new javax.swing.JMenuItem();
 		miLoad = new javax.swing.JMenuItem();
 		miNew = new javax.swing.JMenuItem();
+		miSave = new javax.swing.JMenuItem();
 		jSeparator1 = new javax.swing.JPopupMenu.Separator();
 		miExit = new javax.swing.JMenuItem();
 		miFind = new JMenuItem();
@@ -209,6 +211,17 @@ public class MainScreen extends javax.swing.JFrame {
 			}
 		});
 		mEdit.add(miFind);
+		
+		miSave.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
+				java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.CTRL_MASK));
+		miSave.setText("Save");
+		miSave.addActionListener(new java.awt.event.ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				bSaveActionPerformed(evt);
+			}
+		});
+		mEdit.add(miSave);
 		
 		miPreview.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
 				java.awt.event.KeyEvent.VK_E, java.awt.event.InputEvent.CTRL_MASK));
@@ -362,10 +375,12 @@ public class MainScreen extends javax.swing.JFrame {
 	private void listEntriesMouseClicked(java.awt.event.MouseEvent evt) {// GEN-FIRST:event_listEntriesMouseClicked
 		int chosen = listEntries.getSelectedIndex();
 		if (chosen != -1) {
+			Entry value = (Entry) (Object)listEntries.getSelectedValue();
+			chosen = entries.indexOf(value);
 			tfTitle.setText(entries.get(chosen).title());
 			taContent.setText(entries.get(chosen).content());
-			if (wrongView) {
-				wrongView = false;
+			if (preview) {
+				preview = false;
 				tfTitle.setEditable(true);
 				taContent.setEditable(true);
 			}
@@ -385,10 +400,10 @@ public class MainScreen extends javax.swing.JFrame {
 	}// GEN-LAST:event_listEntriesKeyPressed
 
 	private void miPreviewActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_miPreviewActionPerformed
-		if (!wrongView) {
+		if (!preview) {
 			updateCurrentEntry();
 		}
-		wrongView = true;
+		preview = true;
 		writeLog();
 		tfTitle.setText("Preview Log...");
 		taContent.setText(new String(logContent));
@@ -410,13 +425,13 @@ public class MainScreen extends javax.swing.JFrame {
 	}// GEN-LAST:event_miExitActionPerformed
 
 	private void tfTitleKeyReleased(java.awt.event.KeyEvent evt) {// GEN-FIRST:event_tfTitleKeyReleased
-		if (!wrongView) {
+		if (!preview) {
 			updateCurrentEntry();
 		}
 	}// GEN-LAST:event_tfTitleKeyReleased
 
 	private void taContentKeyReleased(java.awt.event.KeyEvent evt) {// GEN-FIRST:event_taContentKeyReleased
-		if (!wrongView) {
+		if (!preview) {
 			updateCurrentEntry();
 		}
 	}// GEN-LAST:event_taContentKeyReleased
@@ -491,6 +506,7 @@ public class MainScreen extends javax.swing.JFrame {
 	private JMenuItem miLoad;
 	private JMenuItem miPreview;
 	private JMenuItem miSaveToFile;
+	private JMenuItem miSave;
 	private JTextArea taContent;
 	private JTextField tfTitle;
 	private JLabel lFind;
@@ -501,7 +517,7 @@ public class MainScreen extends javax.swing.JFrame {
 	private final ArrayList<Entry> entries;
 	private final DefaultListModel listModel;
 	private final InsertEntry insertEntry;
-	private boolean wrongView;
+	private boolean preview;
 	private static final String FILE_SAVE_NAME = "Current.log";
 	private static final SimpleDateFormat DEFAULT_TIME = new SimpleDateFormat("HH : mm : ss");
 	protected static final SimpleDateFormat DEFAULT_DATE = new SimpleDateFormat("dd - MMMM - yyyy",
@@ -510,7 +526,7 @@ public class MainScreen extends javax.swing.JFrame {
 			Locale.ENGLISH);
 
 	protected void addEntry(Entry entry) {
-		wrongView = true;
+		preview = true;
 		entries.add(entry);
 		Entry.sort(entries);
 		listModel.clear();
@@ -527,9 +543,11 @@ public class MainScreen extends javax.swing.JFrame {
 	}
 
 	private void updateCurrentEntry() {
-		if (!wrongView) {
+		if (!preview) {
 			int chosen = listEntries.getSelectedIndex();
 			if (chosen != -1) {
+				Entry entry = (Entry) (Object) listEntries.getSelectedValue();
+				chosen = entries.indexOf(entry);
 				entries.get(chosen).updateTitle(tfTitle.getText());
 				entries.get(chosen).update(taContent.getText());
 			}
@@ -558,7 +576,7 @@ public class MainScreen extends javax.swing.JFrame {
 				do {
 					line = br.readLine();
 					if (line == null) {
-						wrongView = true;
+						preview = true;
 						updateNumberOfItems();
 						br.close();
 						return true;
