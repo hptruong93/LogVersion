@@ -130,7 +130,7 @@ public class MainScreen extends javax.swing.JFrame {
 
 		tfFind.addKeyListener(new KeyAdapter() {
 			@Override
-			public void keyPressed(KeyEvent e) {
+			public void keyReleased(KeyEvent e) {
 				if (e.getKeyCode() == KeyEvent.VK_ENTER || cbmiIncrementalSearch.isSelected()) {
 					ArrayList<Integer> filtered = Entry.find(MainScreen.this.entries, MainScreen.this.tfFind.getText());
 					
