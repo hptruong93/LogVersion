@@ -2,7 +2,10 @@ package Application;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 public class Entry {
 
@@ -49,7 +52,14 @@ public class Entry {
 		} else {
 			for (int i = 0; i < array.size(); i++) {
 				Entry current = array.get(i);
-				if (current.title.indexOf(key) != -1 || current.content.indexOf(key) != -1) {
+				if (current.title.indexOf(key) != -1) {
+					output.add(i);
+				}
+			}
+			
+			for (int i = 0; i < array.size(); i++) {
+				Entry current = array.get(i);
+				if (current.content.indexOf(key) != -1 && !output.contains(i)) {
 					output.add(i);
 				}
 			}
@@ -57,16 +67,13 @@ public class Entry {
 		return output;
 	}
 
-	protected static void sort(ArrayList<Entry> array) {// Ascending order
-		for (int i = 0; i < array.size(); i++) {
-			for (int j = i + 1; j < array.size(); j++) {
-				if (array.get(i).time.compareTo(array.get(j).time) > 0) {
-					Entry temp = array.get(i);
-					array.set(i, array.get(j));
-					array.set(j, temp);
-				}
+	protected static void sort(List<Entry> array) {// Ascending order
+		Collections.sort(array, new Comparator<Entry>() {
+			@Override
+			public int compare(Entry o1, Entry o2) {
+				return o1.time.compareTo(o2.time);
 			}
-		}
+		});
 	}
 
 	protected void updateTitle(String newTitle) {

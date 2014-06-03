@@ -1,6 +1,6 @@
 package Application;
 
-import java.awt.event.ActionEvent;
+import java.awt.Color;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 import javax.swing.AbstractListModel;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -36,6 +37,10 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.Highlighter;
+import javax.swing.text.Highlighter.HighlightPainter;
 
 public class MainScreen extends javax.swing.JFrame {
 
@@ -81,22 +86,26 @@ public class MainScreen extends javax.swing.JFrame {
 		lTime = new javax.swing.JLabel();
 		lDate = new javax.swing.JLabel();
 		bNew = new javax.swing.JButton();
-		jMenuBar1 = new javax.swing.JMenuBar();
-		mControl = new javax.swing.JMenu("Control");
+		mbMain = new javax.swing.JMenuBar();
+		mFile = new javax.swing.JMenu("File");
 		mEdit = new JMenu("Edit");
+		mOption = new JMenu("Option");
 		miPreview = new javax.swing.JMenuItem();
 		miSaveToFile = new javax.swing.JMenuItem();
 		miLoad = new javax.swing.JMenuItem();
 		miNew = new javax.swing.JMenuItem();
-		miSave = new javax.swing.JMenuItem();
 		jSeparator1 = new javax.swing.JPopupMenu.Separator();
 		miExit = new javax.swing.JMenuItem();
 		miFind = new JMenuItem();
 		lFind = new JLabel("Find");
 		tfFind = new JTextField();
+		cbmiIncrementalSearch = new JCheckBoxMenuItem("Incremental search");
+		searchHighLight = new DefaultHighlighter();
+	    highlightPainter = new DefaultHighlighter.DefaultHighlightPainter(Color.LIGHT_GRAY);
 
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
+		taContent.setHighlighter(searchHighLight);
 		taContent.setColumns(20);
 		taContent.setLineWrap(true);
 		taContent.setRows(5);
@@ -122,7 +131,7 @@ public class MainScreen extends javax.swing.JFrame {
 		tfFind.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
-				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER || cbmiIncrementalSearch.isSelected()) {
 					ArrayList<Integer> filtered = Entry.find(MainScreen.this.entries, MainScreen.this.tfFind.getText());
 					
 					listModel.clear();
@@ -130,6 +139,7 @@ public class MainScreen extends javax.swing.JFrame {
 					for (Integer i : filtered) {
 						listModel.addElement(entries.get(i));
 					}
+					updateNumberOfItems();
 				}
 			}
 		});
@@ -189,18 +199,6 @@ public class MainScreen extends javax.swing.JFrame {
 			}
 		});
 
-		
-		miNew.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
-				java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.CTRL_MASK));
-		miNew.setText("New entry");
-		miNew.addActionListener(new java.awt.event.ActionListener() {
-			@Override
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				insertEntry.setVisible(true);
-			}
-		});
-		mEdit.add(miNew);
-		
 		miFind.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
 				java.awt.event.KeyEvent.VK_F, java.awt.event.InputEvent.CTRL_MASK));
 		miFind.setText("Find");
@@ -212,16 +210,16 @@ public class MainScreen extends javax.swing.JFrame {
 		});
 		mEdit.add(miFind);
 		
-		miSave.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
-				java.awt.event.KeyEvent.VK_D, java.awt.event.InputEvent.CTRL_MASK));
-		miSave.setText("Save");
-		miSave.addActionListener(new java.awt.event.ActionListener() {
+		miNew.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
+				java.awt.event.KeyEvent.VK_T, java.awt.event.InputEvent.CTRL_MASK));
+		miNew.setText("New entry");
+		miNew.addActionListener(new java.awt.event.ActionListener() {
 			@Override
-			public void actionPerformed(ActionEvent evt) {
-				bSaveActionPerformed(evt);
+			public void actionPerformed(java.awt.event.ActionEvent evt) {
+				insertEntry.setVisible(true);
 			}
 		});
-		mEdit.add(miSave);
+		mFile.add(miNew);
 		
 		miPreview.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
 				java.awt.event.KeyEvent.VK_E, java.awt.event.InputEvent.CTRL_MASK));
@@ -232,7 +230,7 @@ public class MainScreen extends javax.swing.JFrame {
 				miPreviewActionPerformed(evt);
 			}
 		});
-		mControl.add(miPreview);
+		mFile.add(miPreview);
 
 		miSaveToFile.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
 				java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
@@ -243,7 +241,7 @@ public class MainScreen extends javax.swing.JFrame {
 				miSaveToFileActionPerformed(evt);
 			}
 		});
-		mControl.add(miSaveToFile);
+		mFile.add(miSaveToFile);
 
 		miLoad.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_L,
 				java.awt.event.InputEvent.CTRL_MASK));
@@ -254,8 +252,8 @@ public class MainScreen extends javax.swing.JFrame {
 				miLoadActionPerformed(evt);
 			}
 		});
-		mControl.add(miLoad);
-		mControl.add(jSeparator1);
+		mFile.add(miLoad);
+		mFile.add(jSeparator1);
 
 		miExit.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_X,
 				java.awt.event.InputEvent.ALT_MASK));
@@ -266,11 +264,15 @@ public class MainScreen extends javax.swing.JFrame {
 				miExitActionPerformed(evt);
 			}
 		});
-		mControl.add(miExit);
+		mFile.add(miExit);
 		
-		jMenuBar1.add(mControl);
-		jMenuBar1.add(mEdit);
-		setJMenuBar(jMenuBar1);
+		cbmiIncrementalSearch.setSelected(true);
+		mOption.add(cbmiIncrementalSearch);
+		
+		mbMain.add(mFile);
+		mbMain.add(mEdit);
+		mbMain.add(mOption);
+		setJMenuBar(mbMain);
 
 		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
 		getContentPane().setLayout(layout);
@@ -379,6 +381,27 @@ public class MainScreen extends javax.swing.JFrame {
 			chosen = entries.indexOf(value);
 			tfTitle.setText(entries.get(chosen).title());
 			taContent.setText(entries.get(chosen).content());
+			
+			searchHighLight.removeAllHighlights();
+			String finding = tfFind.getText();
+			if (finding.length() != 0) {
+				int start = 0;
+				int index = 99999;
+				while (true) {
+					index = taContent.getText().indexOf(finding, start);
+					if (index == -1) {
+						break;
+					} else {
+						start = index + finding.length();
+						try {
+							searchHighLight.addHighlight(index, start, highlightPainter);
+						} catch (BadLocationException e) {
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+			
 			if (preview) {
 				preview = false;
 				tfTitle.setEditable(true);
@@ -489,9 +512,10 @@ public class MainScreen extends javax.swing.JFrame {
 	// Variables declaration - do not modify//GEN-BEGIN:variables
 	private JButton bNew;
 	private JButton bSave;
-	private JMenu mControl;
+	private JMenu mFile;
 	private JMenu mEdit;
-	private JMenuBar jMenuBar1;
+	private JMenu mOption;
+	private JMenuBar mbMain;
 	private JScrollPane jScrollPane1;
 	private JScrollPane jScrollPane2;
 	private JPopupMenu.Separator jSeparator1;
@@ -504,11 +528,15 @@ public class MainScreen extends javax.swing.JFrame {
 	private JMenuItem miLoad;
 	private JMenuItem miPreview;
 	private JMenuItem miSaveToFile;
-	private JMenuItem miSave;
+	private JCheckBoxMenuItem cbmiIncrementalSearch;
 	private JTextArea taContent;
 	private JTextField tfTitle;
 	private JLabel lFind;
 	private JTextField tfFind;
+	
+	private Highlighter searchHighLight;
+	private HighlightPainter highlightPainter;
+	
 	// End of variables declaration//GEN-END:variables
 	private final StringBuilder logContent;
 	private final ScheduledThreadPoolExecutor timer;
